@@ -19,11 +19,10 @@
         <TextView
             android:id="@+id/login_title"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/login_title_text"
+            android:layout_height="wrap_content" 
+            android:text="Please authenticate yourself"
             android:autoSizeMaxTextSize="24dp"
-            android:autoSizeMinTextSize="12dp"
-            android:textColorHint="@color/black"/>
+            android:autoSizeMinTextSize="12dp"/>
 
         <EditText
             android:id="@+id/username_input"
@@ -31,8 +30,8 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:inputType="textPersonName"
-            android:hint="@string/username_field_hint_text"
-            android:textColorHint="@color/black"/>
+            android:hint="Username"
+            android:textIsSelectable="true"/>
 
         <EditText
             android:id="@+id/password_input"
@@ -40,13 +39,11 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:inputType="textPassword"
-            android:hint="@string/password_field_hint_text"
-            android:textColorHint="@color/black"/>
+            android:hint="Password" />
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/signin_button_text"
-            android:id="@+id/sign_in_button"/>
+            android:text="@string/signin_button_text" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
