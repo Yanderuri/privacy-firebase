@@ -19,7 +19,7 @@ import com.google.firebase.auth.FirebaseUser;
 public class MainActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private EditText mUsernameField, mPasswordField;
-    private Button mSignInButton,mSignUpButton;
+    private Button mSignInButton,mSignUpButton,mClearFieldsButton;
     private static final String TAG = "Sign-in Page";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,10 +30,30 @@ public class MainActivity extends AppCompatActivity {
         mUsernameField = findViewById(R.id.username_input);
         mPasswordField = findViewById(R.id.password_input);
         mSignInButton = findViewById(R.id.sign_in_button);
+        mClearFieldsButton = findViewById(R.id.clear_fields_button);
+
+        mClearFieldsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mUsernameField.setText("");
+                mPasswordField.setText("");
+            }
+        });
         mSignInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //TODO Grab username, password and authenticate
+                String password;
+                String username;
+                try{
+                    password = inputFieldCheck(String.valueOf(mPasswordField.getText()),"Password");
+                    username = inputFieldCheck(String.valueOf(mUsernameField.getText()),"Username");
+                }
+                catch(Exception e){
+                    Toast.makeText(MainActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                signIn(username,password);
             }
         });
 
@@ -96,5 +116,28 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
         // [END create_user_with_email]
+    }
+    private void signIn(String email, String password) {
+        // [START sign_in_with_email]
+        mAuth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            // Sign in success, update UI with the signed-in user's information
+                            Log.d(TAG, "signInWithEmail:success");
+                            FirebaseUser user = mAuth.getCurrentUser();
+                            Toast.makeText(MainActivity.this, "Account signed in successfully",Toast.LENGTH_SHORT).show();
+//                            updateUI(user);
+                        } else {
+                            // If sign in fails, display a message to the user.
+                            Log.w(TAG, "signInWithEmail:failure", task.getException());
+                            Toast.makeText(MainActivity.this, "Authentication failed.",
+                                    Toast.LENGTH_SHORT).show();
+//                            updateUI(null);
+                        }
+                    }
+                });
+        // [END sign_in_with_email]
     }
 }
