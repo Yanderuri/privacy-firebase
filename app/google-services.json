@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "47036217863",
+    "project_id": "privacy-survey-prototype",
+    "storage_bucket": "privacy-survey-prototype.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:47036217863:android:2a2528210a7f72cd9688a2",
+        "android_client_info": {
+          "package_name": "com.example.privacy_firebase"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "47036217863-2cg82c8i4gb247mjf31h3ahh4as1mgl1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD6zOzf0OUuiO-GqZgEnpct6gHxOm4ql90"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "47036217863-2cg82c8i4gb247mjf31h3ahh4as1mgl1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
