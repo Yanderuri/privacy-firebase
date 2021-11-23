@@ -7,6 +7,7 @@
     tools:context=".MainActivity">
 
     <LinearLayout
+        android:id="@+id/authentication_fields"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center"
@@ -21,8 +22,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/login_title_text"
-            android:autoSizeMaxTextSize="24dp"
-            android:autoSizeMinTextSize="12dp"
             android:textColorHint="@color/black"/>
 
         <EditText
@@ -42,11 +41,26 @@
             android:inputType="textPassword"
             android:hint="@string/password_field_hint_text"
             android:textColorHint="@color/black"/>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/authentication_fields">
 
-        <Button
+    <Button
+            android:layout_marginEnd="24dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/signin_button_text"
             android:id="@+id/sign_in_button"/>
+    <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Sign Up"
+            android:id="@+id/sign_up_button"/>
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
