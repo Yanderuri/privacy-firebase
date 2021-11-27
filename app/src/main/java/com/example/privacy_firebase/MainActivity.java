@@ -29,7 +29,6 @@ public class MainActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         mUsernameField = findViewById(R.id.username_input);
         mPasswordField = findViewById(R.id.password_input);
-        mSignInButton = findViewById(R.id.sign_in_button);
         mClearFieldsButton = findViewById(R.id.clear_fields_button);
 
         mClearFieldsButton.setOnClickListener(new View.OnClickListener() {
@@ -39,6 +38,8 @@ public class MainActivity extends AppCompatActivity {
                 mPasswordField.setText("");
             }
         });
+
+        mSignInButton = findViewById(R.id.sign_in_button);
         mSignInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
