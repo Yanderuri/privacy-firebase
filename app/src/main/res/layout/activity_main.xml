@@ -17,12 +17,23 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:maxHeight="300dp"
+            android:maxWidth="300dp"
+            android:src="@drawable/ksu_square_logo"
+            android:layout_marginBottom="12dp"/>
+
         <TextView
             android:id="@+id/login_title"
+            android:textStyle="bold"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/login_title_text"
-            android:textColorHint="@color/black"/>
+            android:textColorHint="@color/black"
+            android:textSize="18dp"/>
 
         <EditText
             android:id="@+id/username_input"
