@@ -43,12 +43,12 @@ public class MainActivity extends AppCompatActivity {
         mSignInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO Grab username, password and authenticate
+                //TODO Grab username, password and authenticate 
                 String password;
                 String username;
                 try{
                     password = inputFieldCheck(String.valueOf(mPasswordField.getText()),"Password");
-                    username = inputFieldCheck(String.valueOf(mUsernameField.getText()),"Username");
+                    username = inputFieldCheck(String.valueOf(mUsernameField.getText()),"Email");
                 }
                 catch(Exception e){
                     Toast.makeText(MainActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
                 String username;
                 try{
                     password = inputFieldCheck(String.valueOf(mPasswordField.getText()),"Password");
-                    username = inputFieldCheck(String.valueOf(mUsernameField.getText()),"Username");
+                    username = inputFieldCheck(String.valueOf(mUsernameField.getText()),"Email");
                 }
                 catch(Exception e){
                     Toast.makeText(MainActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -91,8 +91,13 @@ public class MainActivity extends AppCompatActivity {
         if (input.equals("") || input == null){
             throw new Exception(String.format("%s cannot be blank",field));
         }
-        else if (input.length()<8){
-            throw new Exception(String.format("%s has to be at least 8 characters"));
+        else if (field.equalsIgnoreCase("password") && input.length()<8){
+            throw new Exception(String.format("%s has to be at least 8 characters",field));
+        }
+        else if (field.equalsIgnoreCase("email")){
+            if (!field.matches("\"^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$\"")){
+                throw new Exception("Invalid email");
+            }
         }
         return input;
     }
