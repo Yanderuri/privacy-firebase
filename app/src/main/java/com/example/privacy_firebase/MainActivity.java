@@ -86,8 +86,13 @@ public class MainActivity extends AppCompatActivity {
         }
         catch (Exception e){
             Log.d(TAG,"Couldn't getCurrentUser()");
+            updateUI(null);
         }
     }
+
+    private void updateUI(FirebaseUser user) {
+    }
+
     private String inputFieldCheck(String input, String field) throws Exception {
         if (input.equals("") || input == null){
             throw new Exception(String.format("%s cannot be blank",field));
@@ -113,12 +118,13 @@ public class MainActivity extends AppCompatActivity {
                             Toast.makeText(MainActivity.this, "Account created.",
                                     Toast.LENGTH_SHORT).show();
                             FirebaseUser user = mAuth.getCurrentUser();
-                            // TODO Update UI
+                            updateUI(user);
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "createUserWithEmail:failure", task.getException());
                             Toast.makeText(MainActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
+                            updateUI(null);
                         }
                     }
                 });
@@ -135,13 +141,13 @@ public class MainActivity extends AppCompatActivity {
                             Log.d(TAG, "signInWithEmail:success");
                             FirebaseUser user = mAuth.getCurrentUser();
                             Toast.makeText(MainActivity.this, "Account signed in successfully",Toast.LENGTH_SHORT).show();
-//                            updateUI(user);
+                            updateUI(user);
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithEmail:failure", task.getException());
                             Toast.makeText(MainActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
-//                            updateUI(null);
+                            updateUI(null);
                         }
                     }
                 });
