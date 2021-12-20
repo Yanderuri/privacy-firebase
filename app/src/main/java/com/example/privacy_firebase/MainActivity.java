@@ -1,14 +1,14 @@
 package com.example.privacy_firebase;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -19,7 +19,9 @@ import com.google.firebase.auth.FirebaseUser;
 public class MainActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private EditText mUsernameField, mPasswordField;
-    private Button mSignInButton,mSignUpButton,mClearFieldsButton;
+    private Button mSignInButton;
+    private Button mSignUpButton;
+    private Button mClearFieldsButton;
     private static final String TAG = "Sign-in Page";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,7 +45,6 @@ public class MainActivity extends AppCompatActivity {
         mSignInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO Grab username, password and authenticate 
                 String password;
                 String username;
                 try{
@@ -95,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
             throw new Exception(String.format("%s has to be at least 8 characters",field));
         }
         else if (field.equalsIgnoreCase("email")){
-            if (!field.matches("\"^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$\"")){
+            if (!input.matches("\"^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$\"")){
                 throw new Exception("Invalid email");
             }
         }
