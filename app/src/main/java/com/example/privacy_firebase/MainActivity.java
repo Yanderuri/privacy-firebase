@@ -1,5 +1,6 @@
 package com.example.privacy_firebase;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -22,10 +23,12 @@ public class MainActivity extends AppCompatActivity {
     private Button mSignInButton;
     private Button mSignUpButton;
     private Button mClearFieldsButton;
-    private static final String TAG = "Sign-in Page";
+    private static final String TAG = "sign_in_page";
+    public static final String UUID = "user_id";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG,"onCreate(Bundle) called");
         setContentView(R.layout.activity_main);
 
         mAuth = FirebaseAuth.getInstance();
@@ -79,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
     @Override
-    public void onStart(){
+    protected void onStart(){
         super.onStart();
         try {
             FirebaseUser currentUser = mAuth.getCurrentUser();
@@ -89,8 +92,36 @@ public class MainActivity extends AppCompatActivity {
             updateUI(null);
         }
     }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d(TAG,"onResume() called");
+    }
+    @Override
+    protected void onDestroy(){
+        super.onDestroy();
+        Log.d(TAG,"onDestroy() called");
+    }
+    @Override
+    protected void onPause(){
+        super.onPause();
+        Log.d(TAG,"onPause() called");
+    }
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d(TAG,"onStop() called");
+    }
 
     private void updateUI(FirebaseUser user) {
+        if (user == null){
+            return;
+        }
+        else{
+            Intent intent = new Intent(this, SurveysListActivity.class);
+            intent.putExtra(UUID, user.getUid());
+            startActivity(intent);
+        }
     }
 
     private String inputFieldCheck(String input, String field) throws Exception {

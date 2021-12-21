@@ -6,4 +6,5 @@
     <string name="password_field_hint_text">Password</string>
     <string name="clear_fields_button_text">Clear fields</string>
     <string name="sign_up_button_text">Sign Up</string>
+    <string name="uuid_field">TextView</string>
 </resources>
