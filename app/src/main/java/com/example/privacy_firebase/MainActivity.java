@@ -1,5 +1,6 @@
 package com.example.privacy_firebase;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -25,6 +26,8 @@ public class MainActivity extends AppCompatActivity {
     private Button mClearFieldsButton;
     private static final String TAG = "sign_in_page";
     public static final String UUID = "user_id";
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,6 +38,16 @@ public class MainActivity extends AppCompatActivity {
         mUsernameField = findViewById(R.id.username_input);
         mPasswordField = findViewById(R.id.password_input);
         mClearFieldsButton = findViewById(R.id.clear_fields_button);
+
+
+        try {
+            FirebaseUser currentUser = mAuth.getCurrentUser();
+            updateUI(currentUser);
+        }
+        catch (Exception e){
+            Log.d(TAG,"Couldn't getCurrentUser()");
+            updateUI(null);
+        }
 
         mClearFieldsButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -86,6 +99,7 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
         try {
             FirebaseUser currentUser = mAuth.getCurrentUser();
+            updateUI(currentUser);
         }
         catch (Exception e){
             Log.d(TAG,"Couldn't getCurrentUser()");
@@ -115,17 +129,30 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateUI(FirebaseUser user) {
         if (user == null){
+            mAuth.signOut();
             return;
         }
         else{
-            Intent intent = new Intent(this, SurveysListActivity.class);
+            Intent intent = SurveysListActivity.createIntent(this,SurveysListActivity.class);
             intent.putExtra(UUID, user.getUid());
             startActivity(intent);
         }
     }
-
+    public static Intent createIntent(Context context){
+        return new Intent(context,SurveysListActivity.class);
+    }
+    public static Intent createIntent(Context context, Class<?> cls){
+        return new Intent(context,cls);
+    }
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent(Intent.ACTION_MAIN);
+        intent.addCategory(Intent.CATEGORY_HOME);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+    }
     private String inputFieldCheck(String input, String field) throws Exception {
-        if (input.equals("") || input == null){
+        if (input.equals("")){
             throw new Exception(String.format("%s cannot be blank",field));
         }
         else if (field.equalsIgnoreCase("password") && input.length()<8){
