@@ -24,7 +24,8 @@
             android:maxHeight="300dp"
             android:maxWidth="300dp"
             android:src="@drawable/ksu_square_logo"
-            android:layout_marginBottom="12dp" />
+            android:layout_marginBottom="12dp"
+            android:contentDescription="@string/ksu_logo_text" />
 
         <TextView
             android:id="@+id/login_title"
@@ -39,21 +40,23 @@
             android:id="@+id/username_input"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:ems="10"
-            android:inputType="textPersonName"
-            android:hint="@string/username_field_hint_text"
             android:autofillHints="emailAddress"
-            android:textColorHint="@color/black"/>
+            android:ems="10"
+            android:hint="@string/username_field_hint_text"
+            android:inputType="textPersonName"
+            android:minHeight="48dp"
+            android:textColorHint="@color/black" />
 
         <EditText
             android:id="@+id/password_input"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:ems="10"
-            android:inputType="textPassword"
-            android:hint="@string/password_field_hint_text"
             android:autofillHints="password"
-            android:textColorHint="@color/black"/>
+            android:ems="10"
+            android:hint="@string/password_field_hint_text"
+            android:inputType="textPassword"
+            android:minHeight="48dp"
+            android:textColorHint="@color/black" />
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

@@ -10,4 +10,5 @@
     <string name="sign_out_button_text">Sign out</string>
     <string name="submit_button">Submit</string>
     <string name="name_input_field">Enter your name</string>
+    <string name="ksu_logo_text">KSU Logo</string>
 </resources>

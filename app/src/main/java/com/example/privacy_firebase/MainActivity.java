@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         mUsernameField = findViewById(R.id.username_input);
         mPasswordField = findViewById(R.id.password_input);
-        mClearFieldsButton = findViewById(R.id.clear_fields_button);
+
 
 
         try {
@@ -48,16 +48,13 @@ public class MainActivity extends AppCompatActivity {
             Log.d(TAG,"Couldn't getCurrentUser()");
             updateUI(null);
         }
-
-        mClearFieldsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mUsernameField.setText("");
-                mPasswordField.setText("");
-            }
+        mClearFieldsButton = (Button) findViewById(R.id.clear_fields_button);
+        mClearFieldsButton.setOnClickListener(v -> {
+            mUsernameField.setText("");
+            mPasswordField.setText("");
         });
 
-        mSignInButton = findViewById(R.id.sign_in_button);
+        mSignInButton = (Button) findViewById(R.id.sign_in_button);
         mSignInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -75,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        mSignUpButton = findViewById(R.id.sign_up_button);
+        mSignUpButton = (Button) findViewById(R.id.sign_up_button);
         mSignUpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
