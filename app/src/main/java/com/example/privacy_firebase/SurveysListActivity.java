@@ -24,6 +24,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import org.w3c.dom.Text;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -31,7 +33,8 @@ import java.util.List;
 public class SurveysListActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private static final String TAG = "staging_page";
-    private Button mSignOutButton, mSubmitButton;
+    private Button mSignOutButton, mSubmitButton, mNextQuestionButton, mLastQuestionButton;
+    private TextView question_field;
 //    private EditText name_input_field;
 //    private TextView name_display_field;
     private FirebaseDatabase database;
@@ -58,18 +61,53 @@ public class SurveysListActivity extends AppCompatActivity {
                 finish();
             }
         });
+        Question name = new Question("What's your name?");
+        Question gender = new Question("What's your gender?","Male","Female","Other");
+        Question major = new Question("What's your major?");
+        Survey intro_survey = new Survey("Introduction",name,gender,major);
+        List<Survey> surveys_list = Collections.singletonList(intro_survey);
+
+
+        final int[] current_question = {0};
+
+
+        question_field = findViewById(R.id.question_field);
+        question_field.setText(intro_survey.getQuestionList().get(0).getQuestion());
+
+        mLastQuestionButton = findViewById(R.id.last_question_button);
+        mLastQuestionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (current_question[0] <= 0){
+                   Toast.makeText(SurveysListActivity.this,"Can you don't",Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    current_question[0] -= 1;
+                    question_field.setText(intro_survey.getQuestionList().get(current_question[0]).getQuestion());
+                }
+            }
+        });
+        mNextQuestionButton = findViewById(R.id.next_question_button);
+        mNextQuestionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (current_question[0] >= intro_survey.getQuestionList().size()-1){
+                    Toast.makeText(SurveysListActivity.this,"Can you don't",Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    current_question[0] += 1;
+                    question_field.setText(intro_survey.getQuestionList().get(current_question[0]).getQuestion());
+                }
+            }
+        });
 
         DatabaseReference surveys_ref = database.getReference("surveys");
         mSubmitButton = findViewById(R.id.submit_button);
         mSubmitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Question name = new Question("What should we call you?");
-                Question gender = new Question("What's your gender?","Male","Female","Other");
-                Question major = new Question("What's your major?");
-                Survey intro_survey = new Survey("Introduction",name,gender,major);
-                List<Survey> surveys_list = Collections.singletonList(intro_survey);
-                surveys_ref.setValue(surveys_list);
+//                surveys_ref.setValue(surveys_list);
+
             }
         });
 

@@ -17,22 +17,51 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/uuid_field"
-        android:id="@+id/user_id_field" />
+        android:text="@string/placeholder_text"
+        android:id="@+id/user_id_field"
+        android:layout_marginBottom="16dp"/>
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="@id/user_id_field"
+        android:text="@string/placeholder_text"
+        android:id="@+id/question_field"
+        android:layout_marginBottom="16dp"/>
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:hint="Response here"
+        />
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:text="@string/submit_button"
-        android:id="@+id/submit_button" />
+        android:id="@+id/last_question_button"
+        android:text="Last"
+        app:layout_constraintRight_toLeftOf="@id/next_question_button"
+        android:layout_marginRight="32dp"/>
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/next_question_button"
+        android:text="Next"
+        app:layout_constraintRight_toRightOf="parent"/>
+        </LinearLayout>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/submit_button"
+            android:id="@+id/submit_button" />
     </LinearLayout>
-
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         android:text="@string/sign_out_button_text"
-        android:id="@+id/sign_out_button"
-        />
+        android:id="@+id/sign_out_button" />
 </androidx.constraintlayout.widget.ConstraintLayout>
