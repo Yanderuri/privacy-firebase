@@ -26,6 +26,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import org.w3c.dom.Text;
 
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -46,7 +47,7 @@ public class SurveysListActivity extends AppCompatActivity {
 
         TextView userID_display = findViewById(R.id.user_id_field);
         Intent intent = getIntent();
-        userID_display.setText("Debug\n"+intent.getStringExtra(MainActivity.UUID));
+        userID_display.setText(MessageFormat.format("Debug\n{0}", intent.getStringExtra(MainActivity.UUID)));
 
         database = FirebaseDatabase.getInstance();
         mAuth = FirebaseAuth.getInstance();

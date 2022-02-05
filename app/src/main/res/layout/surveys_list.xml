@@ -5,6 +5,15 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".SurveysListActivity">
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/placeholder_text"
+        android:id="@+id/user_id_field"
+        android:gravity="center_horizontal"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -13,43 +22,38 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginTop="16dp">
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/placeholder_text"
-        android:id="@+id/user_id_field"
-        android:layout_marginBottom="16dp"/>
-
-
+        app:layout_constraintBottom_toBottomOf="parent">
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="@id/user_id_field"
         android:text="@string/placeholder_text"
+        android:textSize="24sp"
         android:id="@+id/question_field"
         android:layout_marginBottom="16dp"/>
     <EditText
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:hint="Response here"
-        />
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+        android:inputType="text" />
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/last_question_button"
         android:text="Last"
         app:layout_constraintRight_toLeftOf="@id/next_question_button"
-        android:layout_marginRight="32dp"/>
+        android:layout_marginEnd="32dp"
+        style="?android:attr/buttonBarButtonStyle" />
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/next_question_button"
         android:text="Next"
-        app:layout_constraintRight_toRightOf="parent"/>
+        app:layout_constraintRight_toRightOf="parent"
+        style="?android:attr/buttonBarButtonStyle" />
         </LinearLayout>
         <Button
             android:layout_width="wrap_content"
