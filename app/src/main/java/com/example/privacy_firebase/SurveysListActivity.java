@@ -1,12 +1,8 @@
 package com.example.privacy_firebase;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -14,22 +10,17 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.firebase.ui.auth.AuthUI;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-
-import org.w3c.dom.Text;
 
 import java.text.MessageFormat;
-import java.util.Arrays;
 import java.util.Collections;
+import java.util.Hashtable;
 import java.util.List;
+import java.util.Dictionary;
 
 public class SurveysListActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
@@ -39,6 +30,9 @@ public class SurveysListActivity extends AppCompatActivity {
 //    private EditText name_input_field;
 //    private TextView name_display_field;
     private FirebaseDatabase database;
+    private EditText answer_field;
+    private Dictionary<Integer, String> user_answers;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,6 +69,12 @@ public class SurveysListActivity extends AppCompatActivity {
         question_field = findViewById(R.id.question_field);
         question_field.setText(intro_survey.getQuestionList().get(0).getQuestion());
 
+        answer_field = findViewById(R.id.answer_field);
+        answer_field.setText("");
+        user_answers = new Hashtable<>();
+
+
+
         mLastQuestionButton = findViewById(R.id.last_question_button);
         mLastQuestionButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -84,6 +84,7 @@ public class SurveysListActivity extends AppCompatActivity {
                 }
                 else {
                     current_question[0] -= 1;
+                    answer_field.setText(user_answers.get(current_question[0]));
                     question_field.setText(intro_survey.getQuestionList().get(current_question[0]).getQuestion());
                 }
             }
@@ -94,9 +95,12 @@ public class SurveysListActivity extends AppCompatActivity {
             public void onClick(View view) {
                 if (current_question[0] >= intro_survey.getQuestionList().size()-1){
                     Toast.makeText(SurveysListActivity.this,"Can you don't",Toast.LENGTH_SHORT).show();
+                    user_answers.put(current_question[0], String.valueOf(answer_field.getText()));
                 }
                 else {
+                    user_answers.put(current_question[0], String.valueOf(answer_field.getText()));
                     current_question[0] += 1;
+                    answer_field.setText(user_answers.get(current_question[0]));
                     question_field.setText(intro_survey.getQuestionList().get(current_question[0]).getQuestion());
                 }
             }

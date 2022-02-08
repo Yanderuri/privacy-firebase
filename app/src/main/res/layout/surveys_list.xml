@@ -35,7 +35,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:hint="Response here"
-        android:inputType="text" />
+        android:inputType="text"
+        android:id="@+id/answer_field"/>
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
