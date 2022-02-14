@@ -35,7 +35,6 @@
             android:text="@string/login_title_text"
             android:textColorHint="@color/black"
             android:textSize="18sp"/>
-
         <EditText
             android:textColorHighlight="@color/white"
             android:id="@+id/username_input"

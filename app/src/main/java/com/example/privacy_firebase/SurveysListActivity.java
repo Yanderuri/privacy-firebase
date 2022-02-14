@@ -13,10 +13,12 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Hashtable;
 import java.util.List;
@@ -29,7 +31,7 @@ public class SurveysListActivity extends AppCompatActivity {
     private TextView question_field;
 //    private EditText name_input_field;
 //    private TextView name_display_field;
-    private FirebaseDatabase database;
+    private FirebaseDatabase mDatabase;
     private EditText answer_field;
     private Dictionary<Integer, String> user_answers;
 
@@ -43,7 +45,7 @@ public class SurveysListActivity extends AppCompatActivity {
         Intent intent = getIntent();
         userID_display.setText(MessageFormat.format("Debug\n{0}", intent.getStringExtra(MainActivity.UUID)));
 
-        database = FirebaseDatabase.getInstance();
+        mDatabase = FirebaseDatabase.getInstance();
         mAuth = FirebaseAuth.getInstance();
 
         mSignOutButton = findViewById(R.id.sign_out_button);
@@ -67,7 +69,8 @@ public class SurveysListActivity extends AppCompatActivity {
 
 
         question_field = findViewById(R.id.question_field);
-        question_field.setText(intro_survey.getQuestionList().get(0).getQuestion());
+        mDatabase.getReference().child("surveys").child("0").get();
+        question_field.setText(intro_survey.getQuestionList().get(current_question[0]).getQuestion());
 
         answer_field = findViewById(R.id.answer_field);
         answer_field.setText("");
@@ -106,7 +109,7 @@ public class SurveysListActivity extends AppCompatActivity {
             }
         });
 
-        DatabaseReference surveys_ref = database.getReference("surveys");
+        DatabaseReference surveys_ref = mDatabase.getReference("surveys");
         mSubmitButton = findViewById(R.id.submit_button);
         mSubmitButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -135,10 +138,12 @@ public class SurveysListActivity extends AppCompatActivity {
 
 
 
-        // TODO: Figure out how to use RecyclerView
-        // TODO: How to add questions, from the app or from the console?
     }
-
+    public static List<String> snapshotToList(DataSnapshot snap){
+        List<String> questions = new ArrayList<>(0);
+        // TODO: Convert dataSnapshot to a list of String, questions.
+        return questions;
+    }
     public static Intent createIntent(Context context){
         return new Intent(context, SurveysListActivity.class);
     }
