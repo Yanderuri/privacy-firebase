@@ -5,12 +5,15 @@ import java.util.Arrays;
 import java.util.List;
 
 public class Question {
-    private final String question;
-    private final List<String> answers_list;
+    private String question;
+    private List<String> answers_list = null;
 
     public Question(String question, String ...answers_choices) {
         this.question = question;
         this.answers_list = Arrays.asList(answers_choices);
+    }
+    public Question(String question){
+        this.question = question;
     }
 
     public String getQuestion() {

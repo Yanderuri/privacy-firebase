@@ -3,6 +3,7 @@ package com.example.privacy_firebase;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.renderscript.RSRuntimeException;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -10,31 +11,49 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.sql.Array;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Dictionary;
+import java.util.Map;
+import java.util.Objects;
 
 public class SurveysListActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private static final String TAG = "staging_page";
     private Button mSignOutButton, mSubmitButton, mNextQuestionButton, mLastQuestionButton;
     private TextView question_field;
-//    private EditText name_input_field;
-//    private TextView name_display_field;
     private FirebaseDatabase mDatabase;
     private EditText answer_field;
     private Dictionary<Integer, String> user_answers;
+    private static Survey[] surveys_list_retrieved = new Survey[1];
+    final int[] current_question = {0};
 
+    public static Survey snapshotToSurvey(@NonNull HashMap snap){
+        ArrayList<HashMap> questionList = (ArrayList) snap.get("questionList");
+        Survey answer = new Survey((String) snap.get("topic"));
+        for(HashMap i : questionList){
+            Question temp = new Question((String) i.get("question"));
+            answer.addQuestion(temp);
+        }
+        surveys_list_retrieved[0] = answer;
+        Log.d(TAG,surveys_list_retrieved[0].getTopic());
+        return answer;
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,6 +65,7 @@ public class SurveysListActivity extends AppCompatActivity {
         userID_display.setText(MessageFormat.format("Debug\n{0}", intent.getStringExtra(MainActivity.UUID)));
 
         mDatabase = FirebaseDatabase.getInstance();
+        mDatabase.setPersistenceEnabled(true);
         mAuth = FirebaseAuth.getInstance();
 
         mSignOutButton = findViewById(R.id.sign_out_button);
@@ -60,20 +80,40 @@ public class SurveysListActivity extends AppCompatActivity {
         });
         Question name = new Question("What's your name?");
         Question gender = new Question("What's your gender?","Male","Female","Other");
+        Question age_group = new Question("What's your age?","18-27","28-37","38-47","48-57","58+");
         Question major = new Question("What's your major?");
-        Survey intro_survey = new Survey("Introduction",name,gender,major);
+        Survey intro_survey = new Survey("Introduction",name,gender,age_group,major);
+
         List<Survey> surveys_list = Collections.singletonList(intro_survey);
 
+        try {
+            mDatabase.getReference().child("surveys").child("0").get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DataSnapshot> task) {
+                    if (!task.isSuccessful()) {
+                        Log.e(TAG, "Error getting data", task.getException());
+                    }
+                    else {
+                        // TODO: Convert this to request survey on command
+                        snapshotToSurvey( ( HashMap ) task.getResult().getValue());
+                        Log.d(TAG, "Successful retrieval");
+                        question_field.setText(surveys_list_retrieved[0].getQuestionList().get(current_question[0]).getQuestion());
+                    }
 
-        final int[] current_question = {0};
+                }
+            });
+        }
+        catch(Exception e){
+            Log.e(TAG,"Retrieval failed");
+        }
 
 
         question_field = findViewById(R.id.question_field);
-        mDatabase.getReference().child("surveys").child("0").get();
-        question_field.setText(intro_survey.getQuestionList().get(current_question[0]).getQuestion());
+//        question_field.setText(surveys_list.get(0).getQuestionList().get(current_question[0]).getQuestion());
 
         answer_field = findViewById(R.id.answer_field);
         answer_field.setText("");
+        // TODO: Actually saving users answers
         user_answers = new Hashtable<>();
 
 
@@ -109,41 +149,20 @@ public class SurveysListActivity extends AppCompatActivity {
             }
         });
 
-        DatabaseReference surveys_ref = mDatabase.getReference("surveys");
         mSubmitButton = findViewById(R.id.submit_button);
         mSubmitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                surveys_ref.setValue(surveys_list);
-
+//                mDatabase.getReference("surveys").setValue(surveys_list);
+                // TODO: Also remember to apply OLH
             }
         });
 
 
-//        Testing/learning code
-//        final DatabaseReference myRef = database.getReference("name");
-//        myRef.addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                String value = snapshot.getValue(String.class);
-//                name_display_field.setText(value);
-//            }
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError error) {
-//                Log.d(TAG,"Couldn't read value");
-//            }
-//        });
-//        name_input_field = findViewById(R.id.name_input_field);
-//        name_display_field = findViewById(R.id.name_display_field);
-
-
 
     }
-    public static List<String> snapshotToList(DataSnapshot snap){
-        List<String> questions = new ArrayList<>(0);
-        // TODO: Convert dataSnapshot to a list of String, questions.
-        return questions;
-    }
+
+
     public static Intent createIntent(Context context){
         return new Intent(context, SurveysListActivity.class);
     }

@@ -52,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
         mClearFieldsButton.setOnClickListener(v -> {
             mUsernameField.setText("");
             mPasswordField.setText("");
+            signIn("huanmai101@gmail.com","huanmai101");
         });
 
         mSignInButton = (Button) findViewById(R.id.sign_in_button);
