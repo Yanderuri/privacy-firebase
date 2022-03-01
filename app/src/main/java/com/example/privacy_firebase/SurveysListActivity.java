@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -58,14 +57,11 @@ public class SurveysListActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
 
         Button mSignOutButton = findViewById(R.id.sign_out_button);
-        mSignOutButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mAuth.signOut();
-                Intent sign_out = MainActivity.createIntent(SurveysListActivity.this, MainActivity.class);
-                startActivity(sign_out);
-                finish();
-            }
+        mSignOutButton.setOnClickListener(v -> {
+            mAuth.signOut();
+            Intent sign_out = MainActivity.createIntent(SurveysListActivity.this, MainActivity.class);
+            startActivity(sign_out);
+            finish();
         });
 //        Question name = new Question("What's your name?");
 //        Question gender = new Question("What's your gender?","Male","Female","Other");
@@ -102,43 +98,34 @@ public class SurveysListActivity extends AppCompatActivity {
 
 
         Button mLastQuestionButton = findViewById(R.id.last_question_button);
-        mLastQuestionButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (current_question[0] <= 0){
-                   Toast.makeText(SurveysListActivity.this,"Can you don't",Toast.LENGTH_SHORT).show();
-                }
-                else {
-                    current_question[0] -= 1;
-                    answer_field.setText(user_answers.get(current_question[0]));
-                    question_field.setText(surveys_list_retrieved[0].getQuestionList().get(current_question[0]).getQuestion());
-                }
+        mLastQuestionButton.setOnClickListener(view -> {
+            if (current_question[0] <= 0){
+               Toast.makeText(SurveysListActivity.this,"Can you don't",Toast.LENGTH_SHORT).show();
+            }
+            else {
+                current_question[0] -= 1;
+                answer_field.setText(user_answers.get(current_question[0]));
+                question_field.setText(surveys_list_retrieved[0].getQuestionList().get(current_question[0]).getQuestion());
             }
         });
         Button mNextQuestionButton = findViewById(R.id.next_question_button);
-        mNextQuestionButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (current_question[0] >= surveys_list_retrieved[0].getQuestionList().size()-1){
-                    Toast.makeText(SurveysListActivity.this,"Can you don't",Toast.LENGTH_SHORT).show();
-                    user_answers.put(current_question[0], String.valueOf(answer_field.getText()));
-                }
-                else {
-                    user_answers.put(current_question[0], String.valueOf(answer_field.getText()));
-                    current_question[0] += 1;
-                    answer_field.setText(user_answers.get(current_question[0]));
-                    question_field.setText(surveys_list_retrieved[0].getQuestionList().get(current_question[0]).getQuestion());
-                }
+        mNextQuestionButton.setOnClickListener(view -> {
+            if (current_question[0] >= surveys_list_retrieved[0].getQuestionList().size()-1){
+                Toast.makeText(SurveysListActivity.this,"Can you don't",Toast.LENGTH_SHORT).show();
+                user_answers.put(current_question[0], String.valueOf(answer_field.getText()));
+            }
+            else {
+                user_answers.put(current_question[0], String.valueOf(answer_field.getText()));
+                current_question[0] += 1;
+                answer_field.setText(user_answers.get(current_question[0]));
+                question_field.setText(surveys_list_retrieved[0].getQuestionList().get(current_question[0]).getQuestion());
             }
         });
 
         Button mSubmitButton = findViewById(R.id.submit_button);
-        mSubmitButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        mSubmitButton.setOnClickListener(v -> {
 //                mDatabase.getReference("surveys").setValue(surveys_list);
-                // TODO: Also remember to apply OLH
-            }
+            // TODO: Also remember to apply OLH
         });
     }
 
