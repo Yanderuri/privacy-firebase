@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.UUID;
 
 public class SurveysListActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
@@ -27,7 +28,7 @@ public class SurveysListActivity extends AppCompatActivity {
     private TextView question_field;
     private FirebaseDatabase mDatabase;
     private EditText answer_field;
-    private Dictionary<Integer, String> user_answers;
+    private ArrayList<String> user_answers;
     private static Survey[] surveys_list_retrieved = new Survey[1];
     final int[] current_question = {0};
     final int[] current_survey = {0};
@@ -39,7 +40,6 @@ public class SurveysListActivity extends AppCompatActivity {
             Question temp = new Question((String) i.get("question"));
             answer.addQuestion(temp);
         }
-        surveys_list_retrieved[0] = answer;
         return answer;
     }
     @Override
@@ -79,9 +79,10 @@ public class SurveysListActivity extends AppCompatActivity {
                 }
                 else {
                     // TODO: Convert this to request survey on command
-                    snapshotToSurvey( (HashMap) task.getResult().getValue());
+                    surveys_list_retrieved[current_survey[0]] = snapshotToSurvey( (HashMap) task.getResult().getValue());
                     Log.d(TAG, "Successful retrieval");
-                    question_field.setText(surveys_list_retrieved[0].getQuestionList().get(current_question[0]).getQuestion());
+                    question_field.setText(surveys_list_retrieved[current_survey[0]].getQuestionList().get(current_question[0]).getQuestion());
+                    user_answers = new ArrayList<String>(surveys_list_retrieved[current_survey[0]].getQuestionList().size());
                 }
 
             });
@@ -94,7 +95,6 @@ public class SurveysListActivity extends AppCompatActivity {
         answer_field = findViewById(R.id.answer_field);
         answer_field.setText("");
         // TODO: Actually saving users answers
-        user_answers = new Hashtable<>();
 
 
         Button mLastQuestionButton = findViewById(R.id.last_question_button);
@@ -112,10 +112,10 @@ public class SurveysListActivity extends AppCompatActivity {
         mNextQuestionButton.setOnClickListener(view -> {
             if (current_question[0] >= surveys_list_retrieved[0].getQuestionList().size()-1){
                 Toast.makeText(SurveysListActivity.this,"Can you don't",Toast.LENGTH_SHORT).show();
-                user_answers.put(current_question[0], String.valueOf(answer_field.getText()));
+                user_answers.set(current_question[0], String.valueOf(answer_field.getText()));
             }
             else {
-                user_answers.put(current_question[0], String.valueOf(answer_field.getText()));
+                user_answers.set(current_question[0], String.valueOf(answer_field.getText()));
                 current_question[0] += 1;
                 answer_field.setText(user_answers.get(current_question[0]));
                 question_field.setText(surveys_list_retrieved[0].getQuestionList().get(current_question[0]).getQuestion());
@@ -124,7 +124,7 @@ public class SurveysListActivity extends AppCompatActivity {
 
         Button mSubmitButton = findViewById(R.id.submit_button);
         mSubmitButton.setOnClickListener(v -> {
-//                mDatabase.getReference("surveys").setValue(surveys_list);
+            mDatabase.getReference().child("responses").child(intent.getStringExtra(MainActivity.UUID)).setValue(user_answers);
             // TODO: Also remember to apply OLH
         });
     }
