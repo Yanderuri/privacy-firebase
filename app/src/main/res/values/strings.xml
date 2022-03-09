@@ -11,4 +11,7 @@
     <string name="submit_button">Submit</string>
     <string name="name_input_field">Enter your name</string>
     <string name="ksu_logo_text">KSU Logo</string>
+    <string name="response_here">Response here</string>
+    <string name="last_question_text">Last</string>
+    <string name="next_question_text">Next</string>
 </resources>

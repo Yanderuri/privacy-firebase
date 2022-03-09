@@ -31,12 +31,18 @@
         android:textSize="24sp"
         android:id="@+id/question_field"
         android:layout_marginBottom="16dp"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        android:text="@string/placeholder_text"
+        android:id="@+id/answers_suggestion" />
     <EditText
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:hint="Response here"
+        android:hint="@string/response_here"
         android:inputType="text"
-        android:id="@+id/answer_field"/>
+        android:id="@+id/answer_field" />
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
@@ -44,7 +50,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/last_question_button"
-        android:text="Last"
+        android:text="@string/last_question_text"
         app:layout_constraintRight_toLeftOf="@id/next_question_button"
         android:layout_marginEnd="32dp"
         style="?android:attr/buttonBarButtonStyle" />
@@ -52,15 +58,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/next_question_button"
-        android:text="Next"
+        android:text="@string/next_question_text"
         app:layout_constraintRight_toRightOf="parent"
         style="?android:attr/buttonBarButtonStyle" />
         </LinearLayout>
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/submit_button"
-            android:id="@+id/submit_button" />
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/submit_button"
+        android:id="@+id/submit_button" />
     </LinearLayout>
     <Button
         android:layout_width="wrap_content"

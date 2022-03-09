@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -16,12 +15,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
 
+
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Dictionary;
 import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.UUID;
+import java.util.List;
+import java.util.Objects;
 
 public class SurveysListActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
@@ -29,19 +28,28 @@ public class SurveysListActivity extends AppCompatActivity {
     private TextView question_field;
     private FirebaseDatabase mDatabase;
     private EditText answer_field;
-    private static final Survey[] surveys_list_retrieved = new Survey[1];
-    final int[] current_question = {0};
-    final int[] current_survey = {0};
     private String[] user_answers;
+    private static final Survey[] surveys_list_retrieved = new Survey[1];
+    static final int[] current_question = {0};
+    static final int[] current_survey = {0};
+    private TextView answers_suggestions;
+
 
     public static Survey snapshotToSurvey(@NonNull HashMap snap){
-        ArrayList<HashMap> questionList = (ArrayList) snap.get("questionList");
+        ArrayList<HashMap> questionList = (ArrayList <HashMap>) snap.get("questionList");
         Survey answer = new Survey((String) snap.get("topic"));
+        assert questionList != null;
         for(HashMap i : questionList){
             Question temp = new Question((String) i.get("question"));
+            if (i.containsKey("answers_list")){
+                temp =  new Question((String) i.get("question"), (List<String>) i.get("answers_list"));
+            }
             answer.addQuestion(temp);
         }
         return answer;
+    }
+    public static String answers_formatter(int current_question){
+        return surveys_list_retrieved[current_survey[0]].getQuestionList().get(current_question).getAnswers_list() == null ? null : surveys_list_retrieved[current_survey[0]].getQuestionList().get(current_question).getAnswers_list().toString();
     }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +60,6 @@ public class SurveysListActivity extends AppCompatActivity {
         TextView userID_display = findViewById(R.id.user_id_field);
         Intent intent = getIntent();
         userID_display.setText(MessageFormat.format("Debug\n{0}", intent.getStringExtra(MainActivity.UUID)));
-
 
         mDatabase = FirebaseDatabase.getInstance();
         mDatabase.setPersistenceEnabled(true);
@@ -72,7 +79,11 @@ public class SurveysListActivity extends AppCompatActivity {
 //        Survey intro_survey = new Survey("Introduction",name,gender,age_group,major);
 //
 //        List<Survey> surveys_list = Collections.singletonList(intro_survey);
+
+        answers_suggestions = findViewById(R.id.answers_suggestion);
         question_field = findViewById(R.id.question_field);
+        answer_field = findViewById(R.id.answer_field);
+
         try {
             mDatabase.getReference().child("surveys").child(String.valueOf(current_survey[0])).get().addOnCompleteListener(task -> {
                 if (!task.isSuccessful()) {
@@ -80,24 +91,21 @@ public class SurveysListActivity extends AppCompatActivity {
                 }
                 else {
                     // TODO: Convert this to request survey on command
-                    surveys_list_retrieved[current_survey[0]] = snapshotToSurvey( (HashMap) task.getResult().getValue());
-                    Log.d(TAG, "Successful questions retrieval");
+                    surveys_list_retrieved[current_survey[0]] = snapshotToSurvey( (HashMap) Objects.requireNonNull(task.getResult().getValue()));
+                    Log.d(TAG, "Successful retrieval");
+                    answers_suggestions.setText(answers_formatter(current_question[0]));
                     question_field.setText(surveys_list_retrieved[current_survey[0]].getQuestionList().get(current_question[0]).getQuestion());
-                    Log.d(TAG, String.valueOf(surveys_list_retrieved[0].getQuestionList().size()));
-                    user_answers = new String[surveys_list_retrieved[0].getQuestionList().size()];
+                    user_answers = new String[surveys_list_retrieved[current_survey[0]].getQuestionList().size()];
                 }
 
             });
         }
         catch(Exception e){
-            Log.e(TAG,"Retrieval failed");
+            Log.e(TAG,"Retrieval failed somewhere");
         }
 
 
-        answer_field = findViewById(R.id.answer_field);
         answer_field.setText("");
-        // TODO: Actually saving users answers
-
 
         Button mLastQuestionButton = findViewById(R.id.last_question_button);
         mLastQuestionButton.setOnClickListener(view -> {
@@ -111,18 +119,17 @@ public class SurveysListActivity extends AppCompatActivity {
             }
         });
         Button mNextQuestionButton = findViewById(R.id.next_question_button);
-        mNextQuestionButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (current_question[0] >= surveys_list_retrieved[0].getQuestionList().size() - 1) {
-                    Toast.makeText(SurveysListActivity.this, "Can you don't", Toast.LENGTH_SHORT).show();
-                    user_answers[current_question[0]] = String.valueOf(answer_field.getText());
-                } else {
-                    user_answers[current_question[0]] = String.valueOf(answer_field.getText());
-                    current_question[0] += 1;
-                    answer_field.setText(user_answers[current_question[0]]);
-                    question_field.setText(surveys_list_retrieved[0].getQuestionList().get(current_question[0]).getQuestion());
-                }
+        mNextQuestionButton.setOnClickListener(view -> {
+            if (current_question[0] >= surveys_list_retrieved[0].getQuestionList().size()-1){
+                Toast.makeText(SurveysListActivity.this,"Can you don't",Toast.LENGTH_SHORT).show();
+                user_answers[current_question[0]] = String.valueOf(answer_field.getText());
+            }
+            else {
+                user_answers[current_question[0]] = String.valueOf(answer_field.getText());
+                current_question[0] += 1;
+                answers_suggestions.setText(answers_formatter(current_question[0]));
+                question_field.setText(surveys_list_retrieved[0].getQuestionList().get(current_question[0]).getQuestion());
+                answer_field.setText(user_answers[current_question[0]]);
             }
         });
 
@@ -132,6 +139,8 @@ public class SurveysListActivity extends AppCompatActivity {
             // TODO: Also remember to apply OLH
         });
     }
+
+
     public static Intent createIntent(Context context){
         return new Intent(context, SurveysListActivity.class);
     }
