@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class Question {
-    private String question;
+    private final String question;
     private List<String> answers_list = null;
 
     public Question(String question, String ...answers_choices) {

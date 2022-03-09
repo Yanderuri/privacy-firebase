@@ -8,7 +8,7 @@ import java.util.List;
 
 public class Survey {
     @Exclude
-    private String topic;
+    private final String topic;
     private List<Question> questionList = new ArrayList<>();
 
     public Survey(String topic, Question ...questionList) {

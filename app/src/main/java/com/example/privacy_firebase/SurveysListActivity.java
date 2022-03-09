@@ -2,6 +2,7 @@ package com.example.privacy_firebase;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
@@ -10,6 +11,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -18,9 +20,12 @@ import com.google.firebase.database.FirebaseDatabase;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
+import java.util.stream.IntStream;
 
 public class SurveysListActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
@@ -36,7 +41,7 @@ public class SurveysListActivity extends AppCompatActivity {
 
 
     public static Survey snapshotToSurvey(@NonNull HashMap snap){
-        ArrayList<HashMap> questionList = (ArrayList <HashMap>) snap.get("questionList");
+        List<HashMap> questionList = (ArrayList <HashMap>) snap.get("questionList");
         Survey answer = new Survey((String) snap.get("topic"));
         assert questionList != null;
         for(HashMap i : questionList){
@@ -48,8 +53,8 @@ public class SurveysListActivity extends AppCompatActivity {
         }
         return answer;
     }
-    public static String answers_formatter(int current_question){
-        return surveys_list_retrieved[current_survey[0]].getQuestionList().get(current_question).getAnswers_list() == null ? null : surveys_list_retrieved[current_survey[0]].getQuestionList().get(current_question).getAnswers_list().toString();
+    public static List<String> answers_formatter(int current_question){
+        return surveys_list_retrieved[current_survey[0]].getQuestionList().get(current_question).getAnswers_list() == null ? Arrays.asList("Answers vary") : surveys_list_retrieved[current_survey[0]].getQuestionList().get(current_question).getAnswers_list();
     }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,8 +97,8 @@ public class SurveysListActivity extends AppCompatActivity {
                 else {
                     // TODO: Convert this to request survey on command
                     surveys_list_retrieved[current_survey[0]] = snapshotToSurvey( (HashMap) Objects.requireNonNull(task.getResult().getValue()));
-                    Log.d(TAG, "Successful retrieval");
-                    answers_suggestions.setText(answers_formatter(current_question[0]));
+                    Log.d(TAG, "Successful survey retrieval");
+                    answers_suggestions.setText(answers_formatter(current_question[0]).toString());
                     question_field.setText(surveys_list_retrieved[current_survey[0]].getQuestionList().get(current_question[0]).getQuestion());
                     user_answers = new String[surveys_list_retrieved[current_survey[0]].getQuestionList().size()];
                 }
@@ -113,7 +118,9 @@ public class SurveysListActivity extends AppCompatActivity {
                Toast.makeText(SurveysListActivity.this,"Can you don't",Toast.LENGTH_SHORT).show();
             }
             else {
+                user_answers[current_question[0]] = String.valueOf(answer_field.getText());
                 current_question[0] -= 1;
+                answers_suggestions.setText(answers_formatter(current_question[0]).toString());
                 answer_field.setText(user_answers[current_question[0]]);
                 question_field.setText(surveys_list_retrieved[0].getQuestionList().get(current_question[0]).getQuestion());
             }
@@ -121,13 +128,13 @@ public class SurveysListActivity extends AppCompatActivity {
         Button mNextQuestionButton = findViewById(R.id.next_question_button);
         mNextQuestionButton.setOnClickListener(view -> {
             if (current_question[0] >= surveys_list_retrieved[0].getQuestionList().size()-1){
-                Toast.makeText(SurveysListActivity.this,"Can you don't",Toast.LENGTH_SHORT).show();
+                Toast.makeText(SurveysListActivity.this,"Press submit if finished",Toast.LENGTH_SHORT).show();
                 user_answers[current_question[0]] = String.valueOf(answer_field.getText());
             }
             else {
                 user_answers[current_question[0]] = String.valueOf(answer_field.getText());
                 current_question[0] += 1;
-                answers_suggestions.setText(answers_formatter(current_question[0]));
+                answers_suggestions.setText(answers_formatter(current_question[0]).toString());
                 question_field.setText(surveys_list_retrieved[0].getQuestionList().get(current_question[0]).getQuestion());
                 answer_field.setText(user_answers[current_question[0]]);
             }
@@ -135,11 +142,56 @@ public class SurveysListActivity extends AppCompatActivity {
 
         Button mSubmitButton = findViewById(R.id.submit_button);
         mSubmitButton.setOnClickListener(v -> {
-            mDatabase.getReference().child("responses").child(intent.getStringExtra(MainActivity.UUID)).setValue(user_answers);
+            // Data Sanitation
+
+            for(int i = 0;i<user_answers.length;i++){
+                user_answers[i] = user_answers[i] == null ? "blank" : user_answers[i].toLowerCase().trim();
+            }
+            String[] filtered_answers = new String[user_answers.length];
+            for(int i = 0;i<user_answers.length;i++){
+                filtered_answers[i] = String.valueOf(sortToBuckets(user_answers[i], answers_formatter(i)));
+            }
+
+
+
+            mDatabase.getReference().child("responses").child(intent.getStringExtra(MainActivity.UUID)).setValue(Arrays.asList(user_answers));
+            mDatabase.getReference().child("converted_responses").child(intent.getStringExtra(MainActivity.UUID)).setValue(Arrays.asList(filtered_answers));
+
             // TODO: Also remember to apply OLH
         });
     }
+    public static int sortToBuckets(String answer, List<String> dataRange){
+        if (Objects.equals(dataRange.get(0), "Answers vary")) {
+            return -1;
+        }
+        try {
+            int number = Integer.parseInt(answer.toLowerCase().trim());
+            // only for strings in the form of "a-b", with a and b being integers, and a dash(-)
+            for(int i = 0;i<dataRange.size();i++){
+                String[] splitted = dataRange.get(i).split("-",2);
+                Integer[] conv = new Integer[splitted.length];
+                conv[0] = Integer.parseInt(splitted[0]);
+                conv[1] = Integer.parseInt(splitted[1]);
+                if (number>=conv[0] && number<=conv[1]){
+                    return i;
+                }
+            }
+        }
+        catch (NumberFormatException e) {
+            Log.d(TAG,String.format("%s: not a number",answer));
+        }
+        catch(Exception e){
+            Log.d(TAG, "Crashed inside sortToBuckets");
+        }
+        // generic data matching
+        for(int j = 0;j<dataRange.size();j++){
+            if(answer.equalsIgnoreCase(dataRange.get(j))){
+                return j;
+            }
+        }
 
+        return 17;
+    }
 
     public static Intent createIntent(Context context){
         return new Intent(context, SurveysListActivity.class);
