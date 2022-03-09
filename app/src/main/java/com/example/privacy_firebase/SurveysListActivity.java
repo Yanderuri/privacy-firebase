@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -28,10 +29,10 @@ public class SurveysListActivity extends AppCompatActivity {
     private TextView question_field;
     private FirebaseDatabase mDatabase;
     private EditText answer_field;
-    private ArrayList<String> user_answers;
-    private static Survey[] surveys_list_retrieved = new Survey[1];
+    private static final Survey[] surveys_list_retrieved = new Survey[1];
     final int[] current_question = {0};
     final int[] current_survey = {0};
+    private String[] user_answers;
 
     public static Survey snapshotToSurvey(@NonNull HashMap snap){
         ArrayList<HashMap> questionList = (ArrayList) snap.get("questionList");
@@ -52,6 +53,7 @@ public class SurveysListActivity extends AppCompatActivity {
         Intent intent = getIntent();
         userID_display.setText(MessageFormat.format("Debug\n{0}", intent.getStringExtra(MainActivity.UUID)));
 
+
         mDatabase = FirebaseDatabase.getInstance();
         mDatabase.setPersistenceEnabled(true);
         mAuth = FirebaseAuth.getInstance();
@@ -70,7 +72,6 @@ public class SurveysListActivity extends AppCompatActivity {
 //        Survey intro_survey = new Survey("Introduction",name,gender,age_group,major);
 //
 //        List<Survey> surveys_list = Collections.singletonList(intro_survey);
-
         question_field = findViewById(R.id.question_field);
         try {
             mDatabase.getReference().child("surveys").child(String.valueOf(current_survey[0])).get().addOnCompleteListener(task -> {
@@ -80,9 +81,10 @@ public class SurveysListActivity extends AppCompatActivity {
                 else {
                     // TODO: Convert this to request survey on command
                     surveys_list_retrieved[current_survey[0]] = snapshotToSurvey( (HashMap) task.getResult().getValue());
-                    Log.d(TAG, "Successful retrieval");
+                    Log.d(TAG, "Successful questions retrieval");
                     question_field.setText(surveys_list_retrieved[current_survey[0]].getQuestionList().get(current_question[0]).getQuestion());
-                    user_answers = new ArrayList<String>(surveys_list_retrieved[current_survey[0]].getQuestionList().size());
+                    Log.d(TAG, String.valueOf(surveys_list_retrieved[0].getQuestionList().size()));
+                    user_answers = new String[surveys_list_retrieved[0].getQuestionList().size()];
                 }
 
             });
@@ -104,21 +106,23 @@ public class SurveysListActivity extends AppCompatActivity {
             }
             else {
                 current_question[0] -= 1;
-                answer_field.setText(user_answers.get(current_question[0]));
+                answer_field.setText(user_answers[current_question[0]]);
                 question_field.setText(surveys_list_retrieved[0].getQuestionList().get(current_question[0]).getQuestion());
             }
         });
         Button mNextQuestionButton = findViewById(R.id.next_question_button);
-        mNextQuestionButton.setOnClickListener(view -> {
-            if (current_question[0] >= surveys_list_retrieved[0].getQuestionList().size()-1){
-                Toast.makeText(SurveysListActivity.this,"Can you don't",Toast.LENGTH_SHORT).show();
-                user_answers.set(current_question[0], String.valueOf(answer_field.getText()));
-            }
-            else {
-                user_answers.set(current_question[0], String.valueOf(answer_field.getText()));
-                current_question[0] += 1;
-                answer_field.setText(user_answers.get(current_question[0]));
-                question_field.setText(surveys_list_retrieved[0].getQuestionList().get(current_question[0]).getQuestion());
+        mNextQuestionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (current_question[0] >= surveys_list_retrieved[0].getQuestionList().size() - 1) {
+                    Toast.makeText(SurveysListActivity.this, "Can you don't", Toast.LENGTH_SHORT).show();
+                    user_answers[current_question[0]] = String.valueOf(answer_field.getText());
+                } else {
+                    user_answers[current_question[0]] = String.valueOf(answer_field.getText());
+                    current_question[0] += 1;
+                    answer_field.setText(user_answers[current_question[0]]);
+                    question_field.setText(surveys_list_retrieved[0].getQuestionList().get(current_question[0]).getQuestion());
+                }
             }
         });
 
@@ -128,8 +132,6 @@ public class SurveysListActivity extends AppCompatActivity {
             // TODO: Also remember to apply OLH
         });
     }
-
-
     public static Intent createIntent(Context context){
         return new Intent(context, SurveysListActivity.class);
     }

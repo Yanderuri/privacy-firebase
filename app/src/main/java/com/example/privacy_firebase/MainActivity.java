@@ -18,15 +18,12 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.SecureRandom;
-import java.util.Arrays;
-
 public class MainActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private EditText mUsernameField, mPasswordField;
+    private Button mSignInButton;
+    private Button mSignUpButton;
+    private Button mClearFieldsButton;
     private static final String TAG = "sign_in_page";
     public static final String UUID = "user_id";
 
@@ -51,14 +48,14 @@ public class MainActivity extends AppCompatActivity {
             Log.d(TAG,"Couldn't getCurrentUser()");
             updateUI(null);
         }
-        Button mClearFieldsButton = (Button) findViewById(R.id.clear_fields_button);
+        mClearFieldsButton = (Button) findViewById(R.id.clear_fields_button);
         mClearFieldsButton.setOnClickListener(v -> {
             mUsernameField.setText("");
             mPasswordField.setText("");
             signIn("huanmai101@gmail.com","huanmai101");
         });
 
-        Button mSignInButton = (Button) findViewById(R.id.sign_in_button);
+        mSignInButton = (Button) findViewById(R.id.sign_in_button);
         mSignInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -76,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        Button mSignUpButton = (Button) findViewById(R.id.sign_up_button);
+        mSignUpButton = (Button) findViewById(R.id.sign_up_button);
         mSignUpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -131,6 +128,7 @@ public class MainActivity extends AppCompatActivity {
     private void updateUI(FirebaseUser user) {
         if (user == null){
             mAuth.signOut();
+            return;
         }
         else{
             Intent intent = SurveysListActivity.createIntent(this,SurveysListActivity.class);
@@ -155,11 +153,8 @@ public class MainActivity extends AppCompatActivity {
         if (input.equals("")){
             throw new Exception(String.format("%s cannot be blank",field));
         }
-        else if (field.equalsIgnoreCase("password")){
-            if( input.length()<8){
-                throw new Exception(String.format("%s has to be at least 8 characters",field));
-            }
-            input = SHA512Hash(input);
+        else if (field.equalsIgnoreCase("password") && input.length()<8){
+            throw new Exception(String.format("%s has to be at least 8 characters",field));
         }
         else if (field.equalsIgnoreCase("email")){
             if (!input.matches("(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])")){
@@ -213,29 +208,5 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
         // [END sign_in_with_email]
-    }
-    public static String SHA512Hash(String input){
-        String hashed = "";
-        try {
-            MessageDigest md = MessageDigest.getInstance("SHA-512");
-            md.update(getSalt());
-            byte[] bytes = md.digest(input.getBytes());
-            hashed = Arrays.toString(bytes);
-            return hashed;
-        } catch (NoSuchAlgorithmException | NoSuchProviderException e) {
-            e.printStackTrace();
-            Log.e(TAG,"Sorry bro, couldn't hash your password");
-        }
-        return input;
-    }
-    private static byte[] getSalt() throws NoSuchAlgorithmException, NoSuchProviderException {
-        // Always use a SecureRandom generator
-        SecureRandom sr = SecureRandom.getInstance("SHA1PRNG", "SUN");
-        // Create array for salt
-        byte[] salt = new byte[16];
-        // Get a random salt
-        sr.nextBytes(salt);
-        // return salt
-        return salt;
     }
 }
