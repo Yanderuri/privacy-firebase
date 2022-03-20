@@ -17,15 +17,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
 
-
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
-import java.util.stream.IntStream;
 
 public class SurveysListActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
@@ -41,6 +39,7 @@ public class SurveysListActivity extends AppCompatActivity {
 
 
     public static Survey snapshotToSurvey(@NonNull HashMap snap){
+        Log.d(TAG, String.valueOf(snap));
         List<HashMap> questionList = (ArrayList <HashMap>) snap.get("questionList");
         Survey answer = new Survey((String) snap.get("topic"));
         assert questionList != null;
@@ -53,9 +52,10 @@ public class SurveysListActivity extends AppCompatActivity {
         }
         return answer;
     }
-    public static List<String> answers_formatter(int current_question){
+    public static List<String> answersFormatter(int current_question){
         return surveys_list_retrieved[current_survey[0]].getQuestionList().get(current_question).getAnswers_list() == null ? Arrays.asList("Answers vary") : surveys_list_retrieved[current_survey[0]].getQuestionList().get(current_question).getAnswers_list();
     }
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,7 +66,7 @@ public class SurveysListActivity extends AppCompatActivity {
         Intent intent = getIntent();
         userID_display.setText(MessageFormat.format("Debug\n{0}", intent.getStringExtra(MainActivity.UUID)));
 
-        mDatabase = FirebaseDatabase.getInstance();
+        mDatabase = FirebaseDatabase.getInstance("https://data-privacy-app-v2-default-rtdb.firebaseio.com/");
         mDatabase.setPersistenceEnabled(true);
         mAuth = FirebaseAuth.getInstance();
 
@@ -79,16 +79,17 @@ public class SurveysListActivity extends AppCompatActivity {
         });
 //        Question name = new Question("What's your name?");
 //        Question gender = new Question("What's your gender?","Male","Female","Other");
-//        Question age_group = new Question("What's your age?","18-27","28-37","38-47","48-57","58+");
+//        Question age_group = new Question("What's your age?","18-27","28-37","38-47","48-57","58-99");
 //        Question major = new Question("What's your major?");
 //        Survey intro_survey = new Survey("Introduction",name,gender,age_group,major);
-//
 //        List<Survey> surveys_list = Collections.singletonList(intro_survey);
+//        mDatabase.getReference().child("surveys").setValue(surveys_list);
+//        Log.d(TAG,"Submitted questions");
 
-        answers_suggestions = findViewById(R.id.answers_suggestion);
-        question_field = findViewById(R.id.question_field);
-        answer_field = findViewById(R.id.answer_field);
-
+        answers_suggestions     = findViewById(R.id.answers_suggestion);
+        question_field          = findViewById(R.id.question_field);
+        answer_field            = findViewById(R.id.answer_field);
+        final boolean[] retrieval_success = {false};
         try {
             mDatabase.getReference().child("surveys").child(String.valueOf(current_survey[0])).get().addOnCompleteListener(task -> {
                 if (!task.isSuccessful()) {
@@ -98,7 +99,8 @@ public class SurveysListActivity extends AppCompatActivity {
                     // TODO: Convert this to request survey on command
                     surveys_list_retrieved[current_survey[0]] = snapshotToSurvey( (HashMap) Objects.requireNonNull(task.getResult().getValue()));
                     Log.d(TAG, "Successful survey retrieval");
-                    answers_suggestions.setText(answers_formatter(current_question[0]).toString());
+                    retrieval_success[0] = true;
+                    answers_suggestions.setText(answersFormatter(current_question[0]).toString());
                     question_field.setText(surveys_list_retrieved[current_survey[0]].getQuestionList().get(current_question[0]).getQuestion());
                     user_answers = new String[surveys_list_retrieved[current_survey[0]].getQuestionList().size()];
                 }
@@ -120,7 +122,7 @@ public class SurveysListActivity extends AppCompatActivity {
             else {
                 user_answers[current_question[0]] = String.valueOf(answer_field.getText());
                 current_question[0] -= 1;
-                answers_suggestions.setText(answers_formatter(current_question[0]).toString());
+                answers_suggestions.setText(answersFormatter(current_question[0]).toString());
                 answer_field.setText(user_answers[current_question[0]]);
                 question_field.setText(surveys_list_retrieved[0].getQuestionList().get(current_question[0]).getQuestion());
             }
@@ -134,7 +136,7 @@ public class SurveysListActivity extends AppCompatActivity {
             else {
                 user_answers[current_question[0]] = String.valueOf(answer_field.getText());
                 current_question[0] += 1;
-                answers_suggestions.setText(answers_formatter(current_question[0]).toString());
+                answers_suggestions.setText(answersFormatter(current_question[0]).toString());
                 question_field.setText(surveys_list_retrieved[0].getQuestionList().get(current_question[0]).getQuestion());
                 answer_field.setText(user_answers[current_question[0]]);
             }
@@ -144,19 +146,36 @@ public class SurveysListActivity extends AppCompatActivity {
         mSubmitButton.setOnClickListener(v -> {
             // Data Sanitation
 
-            for(int i = 0;i<user_answers.length;i++){
-                user_answers[i] = user_answers[i] == null ? "blank" : user_answers[i].toLowerCase().trim();
-            }
-            String[] filtered_answers = new String[user_answers.length];
-            for(int i = 0;i<user_answers.length;i++){
-                filtered_answers[i] = String.valueOf(sortToBuckets(user_answers[i], answers_formatter(i)));
+            for(int i = 0;i<user_answers.length;i++)
+                user_answers[i] = user_answers[i] == null ? "" : user_answers[i].toLowerCase().trim();
+
+            int[] filtered_answers = new int[user_answers.length];
+            for(int i = 0;i<user_answers.length;i++)
+                filtered_answers[i] = sortToBuckets(user_answers[i], answersFormatter(i));
+
+            int[] perturbed_answers = new int[filtered_answers.length];
+            for(int i = 0;i<filtered_answers.length;i++){
+                if(retrieval_success[0] && filtered_answers[i] != -1){
+                    LH_client client = new LH_client(2,surveys_list_retrieved[current_survey[0]].getQuestionList().get(i).getAnswers_list().size());
+                    perturbed_answers[i] = client.perturb(filtered_answers[i]);
+                }
             }
 
-
+            String[] fil_answers = new String[filtered_answers.length];
+            for(int i = 0;i<filtered_answers.length;i++){
+                fil_answers[i] = String.valueOf(filtered_answers[i]);
+            }
+            String[] ptb_answers = new String[perturbed_answers.length];
+            for(int i = 0;i<perturbed_answers.length;i++){
+                ptb_answers[i] = String.valueOf(perturbed_answers[i]);
+            }
 
             mDatabase.getReference().child("responses").child(intent.getStringExtra(MainActivity.UUID)).setValue(Arrays.asList(user_answers));
-            mDatabase.getReference().child("converted_responses").child(intent.getStringExtra(MainActivity.UUID)).setValue(Arrays.asList(filtered_answers));
+            mDatabase.getReference().child("converted").child(intent.getStringExtra(MainActivity.UUID)).setValue(Arrays.asList(fil_answers));
+            mDatabase.getReference().child("perturbed").child(intent.getStringExtra(MainActivity.UUID)).setValue(Arrays.asList(ptb_answers));
 
+
+            Toast.makeText(SurveysListActivity.this, "Thanks", Toast.LENGTH_SHORT).show();
             // TODO: Also remember to apply OLH
         });
     }
